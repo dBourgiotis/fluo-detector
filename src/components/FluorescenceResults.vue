@@ -12,6 +12,9 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 watch(result, (newResult: FluorescenceResult) => {
   if (!canvas.value) return;
   if (newResult.areaPx > 0) {
+    // Set canvas dimensions to match the overlay image
+    canvas.value.width = newResult.overlay.width;
+    canvas.value.height = newResult.overlay.height;
     canvas.value.getContext("2d")?.drawImage(newResult.overlay, 0, 0);
   } else {
     canvas.value.getContext("2d")?.clearRect(0, 0, canvas.value.width, canvas.value.height);
@@ -49,6 +52,8 @@ watch(result, (newResult: FluorescenceResult) => {
         </div>
       </div>
     </div>
-    <canvas ref="canvas" id="canvas" class="mt-6"></canvas>
+    <div class="mt-6 overflow-auto max-h-[500px]">
+      <canvas ref="canvas" id="canvas" class="w-full"></canvas>
+    </div>
   </div>
 </template>
