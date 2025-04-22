@@ -1,15 +1,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const props = defineProps<{ onSubmit: (uvOn: File, uvOff: File) => void }>();
+interface imgType {
+  file: File,
+  ref: HTMLImageElement,
+}
+
+const props = defineProps<{ onSubmit: (uvOn: imgType, uvOff:imgType) => Promise<void> }>();
 
 const uvOnFile = ref<File | null>(null);
 const uvOffFile = ref<File | null>(null);
 
-const handleSubmit = (e: Event) => {
+const uvOnImageUrl = ref<string | null>(null);
+const uvOffImageUrl = ref<string | null>(null);
+
+const uvOnImageRef = ref<HTMLImageElement | null>(null);
+const uvOffImageRef = ref<HTMLImageElement | null>(null);
+
+const handleSubmit = async (e: Event) => {
   e.preventDefault();
-  if (uvOnFile.value && uvOffFile.value) {
-    props.onSubmit(uvOnFile.value, uvOffFile.value);
+  if (uvOnFile.value && uvOffFile.value && uvOnImageRef.value && uvOffImageRef.value) {
+    await props.onSubmit({file: uvOnFile.value, ref: uvOnImageRef.value}, {file: uvOffFile.value, ref: uvOffImageRef.value});
   }
 };
 
@@ -18,8 +29,10 @@ const handleFileChange = (e: Event, type: "uvOn" | "uvOff") => {
   if (input.files && input.files[0]) {
     if (type === "uvOn") {
       uvOnFile.value = input.files[0];
+      uvOnImageUrl.value = URL.createObjectURL(input.files[0]);
     } else {
       uvOffFile.value = input.files[0];
+      uvOffImageUrl.value = URL.createObjectURL(input.files[0]);
     }
   }
 };
@@ -43,6 +56,7 @@ const handleFileChange = (e: Event, type: "uvOn" | "uvOff") => {
           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           required
         />
+        <img v-if="uvOffImageUrl" :src="uvOffImageUrl" ref="uvOffImageRef" />
       </div>
       <div>
         <label for="uvOn" class="block text-sm font-medium text-gray-700 mb-2"
@@ -56,6 +70,7 @@ const handleFileChange = (e: Event, type: "uvOn" | "uvOff") => {
           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           required
         />
+        <img v-if="uvOnImageUrl" :src="uvOnImageUrl" ref="uvOnImageRef" />
       </div>
     </div>
 
